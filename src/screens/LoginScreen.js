@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet } from "react-native";
 import { Input, Button, Text } from "react-native-elements";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebase";
+import { validateEmail } from "../utils/validations";
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
+  const [isErrorEmail, setIsErrorEmail] = useState(false);
+
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const handleLogin = async () => {
@@ -19,6 +22,9 @@ export default function LoginScreen({ navigation }) {
       setError("Error al iniciar sesión: " + error.message);
     }
   };
+  useEffect(() => {
+    setIsErrorEmail(email !== "" && !validateEmail(email));
+  }, [email]);
   return (
     <View style={styles.container}>
       <Text h3 style={styles.title}>
@@ -30,17 +36,22 @@ export default function LoginScreen({ navigation }) {
         onChangeText={setEmail}
         autoCapitalize="none"
       />
+      {isErrorEmail ? <Text style={styles.error}>Email inválido</Text> : null}
       <Input
         placeholder="Contraseña"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
+      {password == "" ? (
+        <Text style={styles.error}>La contraseña es necesaria</Text>
+      ) : null}
       {error ? <Text style={styles.error}>{error}</Text> : null}
       <Button
         title="Iniciar Sesión"
         onPress={handleLogin}
         containerStyle={styles.button}
+        disabled={isErrorEmail || password === ""}
       />
       <Button
         title="Registrarse"
