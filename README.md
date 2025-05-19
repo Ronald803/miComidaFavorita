@@ -49,3 +49,7 @@ npx expo start
 - Gracias a los estados loading (isProfileLoading, isUpdateLoading), mediante un condicional se despliega un indicador de carga o los Inputs, y el botón Actualizar Perfil, ademas de que se deshabilitan los botones con la prop disabled
 
 ## Screenshots de la aplicación
+
+![WhatsApp Image 2025-05-19 at 5 52 24 PM](https://github.com/user-attachments/assets/a1b2651f-3528-48d0-9d0e-f265a9924b93)
+![WhatsApp Image 2025-05-19 at 5 53 19 PM](https://github.com/user-attachments/assets/008c58a4-d4f1-48a5-a61c-03e20f62de83)
+![WhatsApp Image 2025-05-19 at 5 52 23 PM](https://github.com/user-attachments/assets/e029aa0d-b7dd-4118-9683-e3d15b302b57)
