@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
 import { Input, Button, Text } from "react-native-elements";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { validateEmail } from "../utils/validations";
 export default function LoginScreen({ navigation }) {
+  const [isLoading, setIsLoading] = useState(false);
+
   const [email, setEmail] = useState("");
   const [isErrorEmail, setIsErrorEmail] = useState(false);
 
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const handleLogin = async () => {
+    setIsLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
@@ -20,6 +23,8 @@ export default function LoginScreen({ navigation }) {
       navigation.replace("Home");
     } catch (error) {
       setError("Error al iniciar sesión: " + error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
   useEffect(() => {
@@ -47,17 +52,22 @@ export default function LoginScreen({ navigation }) {
         <Text style={styles.error}>La contraseña es necesaria</Text>
       ) : null}
       {error ? <Text style={styles.error}>{error}</Text> : null}
-      <Button
-        title="Iniciar Sesión"
-        onPress={handleLogin}
-        containerStyle={styles.button}
-        disabled={isErrorEmail || password === ""}
-      />
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <Button
+          title="Iniciar Sesión"
+          onPress={handleLogin}
+          containerStyle={styles.button}
+          disabled={isErrorEmail || password === "" || isLoading}
+        />
+      )}
       <Button
         title="Registrarse"
         type="outline"
         onPress={() => navigation.navigate("Register")}
         containerStyle={styles.button}
+        disabled={isLoading}
       />
     </View>
   );

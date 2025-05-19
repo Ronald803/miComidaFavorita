@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
 import { Input, Button, Text } from "react-native-elements";
 import { auth } from "../config/firebase";
 import { signOut } from "firebase/auth";
 import { db } from "../config/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 export default function HomeScreen({ navigation }) {
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
+  const [isUpdateLoading, setIsUpdateLoading] = useState(false);
   const [profile, setProfile] = useState({
     nombre: "",
     apellido: "",
@@ -15,6 +17,7 @@ export default function HomeScreen({ navigation }) {
     loadProfile();
   }, []);
   const loadProfile = async () => {
+    setIsProfileLoading(true);
     try {
       const docRef = doc(db, "usuarios", auth.currentUser.uid);
       const docSnap = await getDoc(docRef);
@@ -23,15 +26,20 @@ export default function HomeScreen({ navigation }) {
       }
     } catch (error) {
       console.error("Error al cargar perfil:", error);
+    } finally {
+      setIsProfileLoading(false);
     }
   };
   const handleUpdate = async () => {
+    setIsUpdateLoading(true);
     try {
       await setDoc(doc(db, "usuarios", auth.currentUser.uid), profile);
       alert("Perfil actualizado exitosamente");
     } catch (error) {
       console.error("Error al actualizar perfil:", error);
       alert("Error al actualizar perfil");
+    } finally {
+      setIsUpdateLoading(false);
     }
   };
   const handleSignOut = async () => {
@@ -47,33 +55,46 @@ export default function HomeScreen({ navigation }) {
       <Text h4 style={styles.title}>
         Mi Perfil
       </Text>
-      <Input
-        placeholder="Nombre"
-        value={profile.nombre}
-        onChangeText={(text) => setProfile({ ...profile, nombre: text })}
-      />
-      <Input
-        placeholder="Apellido"
-        value={profile.apellido}
-        onChangeText={(text) => setProfile({ ...profile, apellido: text })}
-      />
-      <Input
-        placeholder="Comida Favorita"
-        value={profile.comidaFavorita}
-        onChangeText={(text) =>
-          setProfile({ ...profile, comidaFavorita: text })
-        }
-      />
-      <Button
-        title="Actualizar Perfil"
-        onPress={handleUpdate}
-        containerStyle={styles.button}
-      />
+      {isProfileLoading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <View>
+          <Input
+            placeholder="Nombre"
+            value={profile.nombre}
+            onChangeText={(text) => setProfile({ ...profile, nombre: text })}
+          />
+          <Input
+            placeholder="Apellido"
+            value={profile.apellido}
+            onChangeText={(text) => setProfile({ ...profile, apellido: text })}
+          />
+          <Input
+            placeholder="Comida Favorita"
+            value={profile.comidaFavorita}
+            onChangeText={(text) =>
+              setProfile({ ...profile, comidaFavorita: text })
+            }
+          />
+        </View>
+      )}
+      {isUpdateLoading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <Button
+          title="Actualizar Perfil"
+          onPress={handleUpdate}
+          containerStyle={styles.button}
+          disabled={isProfileLoading || isUpdateLoading}
+        />
+      )}
+
       <Button
         title="Cerrar Sesión"
         type="outline"
         onPress={handleSignOut}
         containerStyle={styles.button}
+        disabled={isProfileLoading || isUpdateLoading}
       />
     </View>
   );

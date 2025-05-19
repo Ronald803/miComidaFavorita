@@ -6,6 +6,8 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { validateEmail, validatePassword } from "../utils/validations";
 export default function RegisterScreen({ navigation }) {
+  const [isLoading, setIsLoading] = useState(false);
+
   const [email, setEmail] = useState("");
   const [isErrorEmail, setIsErrorEmail] = useState(false);
 
@@ -29,6 +31,7 @@ export default function RegisterScreen({ navigation }) {
   }, [confirmPassword]);
 
   const handleRegister = async () => {
+    setIsLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -38,6 +41,8 @@ export default function RegisterScreen({ navigation }) {
       navigation.replace("Home");
     } catch (error) {
       setError("Error al registrarse: " + error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
@@ -70,6 +75,7 @@ export default function RegisterScreen({ navigation }) {
       {isErrorConfirmPassword ? (
         <Text style={styles.error}>Las contraseñas no coinciden</Text>
       ) : null}
+      {isLoading ? <ActivityIndicator size="large" color="#0000ff" /> : null}
       <Button
         title="Registrarse"
         onPress={handleRegister}
@@ -80,7 +86,8 @@ export default function RegisterScreen({ navigation }) {
           confirmPassword === "" ||
           isErrorEmail ||
           isErrorPassword ||
-          isErrorConfirmPassword
+          isErrorConfirmPassword ||
+          isLoading
         }
       />
       <Button
@@ -88,6 +95,7 @@ export default function RegisterScreen({ navigation }) {
         type="outline"
         onPress={() => navigation.navigate("Login")}
         containerStyle={styles.button}
+        disabled={isLoading}
       />
     </View>
   );
